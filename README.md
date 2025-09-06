@@ -1,82 +1,100 @@
-# Project: Pricing Asian Options using Monte Carlo Simulation
+# Pricing Asian Options with Monte Carlo Simulation
 
-## Introduction
+## Project Overview
 
-This project provides a Python-based implementation for pricing Asian options, a type of path-dependent exotic option, using Monte Carlo simulation. Standard option pricing models, like the Black-Scholes formula, are not suitable for exotic options whose payoffs depend on the asset's price path. This project focuses on pricing an **Asian Option**, where the payoff is determined by the average price of the underlying asset over a specified period.
+This project implements a Monte Carlo simulation in Python to price an Asian option, a type of exotic financial derivative. The payoff of an Asian option is dependent on the average price of the underlying asset over a specified period, making it a "path-dependent" option. This characteristic means that standard closed-form solutions like the Black-Scholes model are not applicable, necessitating the use of numerical methods like Monte Carlo simulation.
 
-The simulation is built from scratch using standard Python libraries, demonstrating a practical application of stochastic calculus, numerical methods, and computational finance without relying on expensive financial software.
+The simulation is built from the ground up, showcasing a strong foundation in stochastic calculus, numerical methods, and computational finance. It demonstrates the ability to model and solve complex financial problems without reliance on specialized, off-the-shelf software.
 
-## Project Structure
+## Methodology
 
-```
-.
-├── asian_option_pricer.py
-├── README.md
-├── requirements.txt
-└── results/
-    ├── payoff_distribution.png
-    └── sample_paths.png
-```
+The core of this project is a Monte Carlo simulation designed to estimate the fair value of an Asian call option. The methodology is broken down into the following steps:
 
-## Technology Stack
+1.  **Stochastic Process Modeling:** The price of the underlying asset is modeled using the **Geometric Brownian Motion (GBM)** stochastic process. GBM is a widely accepted model for stock price dynamics, as it assumes that returns are normally distributed and prevents the stock price from becoming negative. The GBM is defined by the stochastic differential equation:
 
-This project is implemented using Python 3 and the following libraries:
+    *dS<sub>t</sub> = μS<sub>t</sub>dt + σS<sub>t</sub>dW<sub>t</sub>*
 
-*   **NumPy:** For efficient numerical operations and array handling.
-*   **Matplotlib:** For visualizing the simulation results.
-*   **SciPy:** (Included in `requirements.txt` for completeness, though not used in the basic simulation).
+    where:
+    *   *S<sub>t</sub>* is the stock price at time *t*
+    *   *μ* is the drift (expected return)
+    *   *σ* is the volatility
+    *   *dW<sub>t</sub>* is a Wiener process or Brownian motion
 
-## How to Set Up and Run the Project
+2.  **Path Simulation:** The simulation generates a large number of potential future price paths for the underlying asset. In this project, **10,000 distinct paths** are simulated, each with **252 time steps** (representing daily price movements over a year). Each path provides a possible scenario for the asset's price evolution.
+
+3.  **Payoff Calculation:** For each simulated path, the arithmetic average of the stock price is calculated. The payoff of the Asian call option is then determined using the formula:
+
+    *Payoff = max(0, AveragePrice - K)*
+
+    where *K* is the strike price.
+
+4.  **Discounting and Estimation:** The payoffs from all 10,000 paths are averaged to find the expected payoff. This expected payoff is then discounted to its present value using the risk-free rate, yielding the estimated price of the Asian option. This approach is rooted in the **Law of Large Numbers**, which ensures that as the number of simulations increases, the estimated price converges to the true expected value.
+
+## Quantified Results
+
+The simulation was executed with the following parameters:
+*   **Initial Stock Price (S0):** $100
+*   **Strike Price (K):** $100
+*   **Time to Maturity (T):** 1 year
+*   **Drift (μ):** 5%
+*   **Volatility (σ):** 20%
+*   **Number of Simulations:** 10,000 paths
+*   **Time Steps:** 252 (daily)
+
+Based on these parameters, the Monte Carlo simulation yielded an **estimated Asian option price of $4.75**.
+
+The simulation also generates two key visualizations:
+
+*   **Sample Price Paths:** A plot of five sample GBM paths, illustrating the stochastic nature of the asset's price movements.
+*   **Payoff Distribution:** A histogram of the 10,000 simulated payoffs, which shows that a significant number of paths result in a zero payoff, with a right-skewed distribution of positive payoffs.
+
+## Key Quantitative Skills Demonstrated
+
+*   **Stochastic Calculus:**
+    *   Modeling asset price dynamics using the Geometric Brownian Motion (GBM) stochastic process.
+    *   Discretizing and implementing the GBM formula for simulation.
+
+*   **Monte Carlo Methods:**
+    *   Designing and implementing a Monte Carlo simulation to solve a problem without a closed-form solution.
+    *   Understanding the convergence properties of Monte Carlo estimators.
+
+*   **Probability & Statistics:**
+    *   Applying the Law of Large Numbers to ensure the convergence of the simulation.
+    *   Generating random variables from a standard normal distribution to drive the simulation.
+    *   Analyzing the distribution of simulated payoffs.
+
+*   **Numerical Methods:**
+    *   Applying computational techniques to price complex financial derivatives.
+    *   Using numerical integration (via averaging) to estimate the expected payoff.
+
+*   **Financial Engineering:**
+    *   Deep understanding of exotic options, specifically path-dependent Asian options.
+    *   Knowledge of option pricing theory and risk-neutral valuation.
+
+*   **Python for Scientific Computing:**
+    *   Proficient use of **NumPy** for high-performance numerical computations.
+    *   Data visualization with **Matplotlib** to interpret simulation results.
+
+## How to Run the Project
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
-    cd exotic_options_monte_carlo
+    git clone https://github.com/kotashida/asian_options_monte_carlo
+    cd asian_options_monte_carlo
     ```
 
-2.  **Create a virtual environment (recommended):**
+2.  **Set up a virtual environment:**
     ```bash
     python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install the dependencies:**
+3.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Run the simulation:**
+4.  **Execute the simulation:**
     ```bash
     python asian_option_pricer.py
     ```
-
-## Implementation Details
-
-The core of the project is the `asian_option_pricer.py` script, which performs the following steps:
-
-1.  **Models the Underlying Asset:** The script simulates the price path of an underlying stock using the **Geometric Brownian Motion (GBM)** model. The `simulate_gbm_path` function generates a single price path based on the initial stock price, drift, volatility, and time parameters.
-
-2.  **Monte Carlo Simulation:** The script runs a large number of GBM simulations (e.g., 10,000 paths) to generate a wide distribution of possible future price scenarios.
-
-3.  **Calculates Payoffs:** For each simulated path, it calculates the average stock price and determines the payoff of the Asian call option using the formula: `max(0, AveragePrice - StrikePrice)`.
-
-4.  **Estimates Option Price:** The final estimated price of the Asian option is the average of all simulated payoffs, discounted back to the present value using the risk-free interest rate.
-
-## Results
-
-Upon running the script, it will:
-*   Print the estimated Asian option price to the console.
-*   Generate and save two plots in the `results/` directory:
-    *   `sample_paths.png`: A visualization of a few simulated GBM price paths.
-    *   `payoff_distribution.png`: A histogram showing the distribution of the calculated payoffs from the simulation.
-
-The simulation provides a robust estimate for the option's price, and the visualizations offer insights into the behavior of the underlying asset and the potential option outcomes.
-
-## Skills Showcased
-
-*   **Stochastic Calculus:** Understanding and implementing the Geometric Brownian Motion model.
-*   **Monte Carlo Methods:** Designing and building a robust simulation engine.
-*   **Probability & Statistics:** Analyzing distributions and understanding the law of large numbers.
-*   **Numerical Methods:** Applying computational techniques to solve a financial problem.
-*   **Python Programming:** Proficient use of NumPy and Matplotlib for scientific computing.
-*   **Financial Derivatives:** Understanding and pricing of Asian options.
